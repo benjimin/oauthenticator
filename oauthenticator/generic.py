@@ -138,6 +138,7 @@ class GenericOAuthenticator(OAuthenticator):
         Note that this method is introduced by GenericOAuthenticator and not
         present in the base class.
         """
+        self.log.info(f"CALLED GET_USER_GROUPS, claim groups key: {self.claim_groups_key} user info: {user_info}")
         if callable(self.claim_groups_key):
             return set(self.claim_groups_key(user_info))
         try:
@@ -159,12 +160,14 @@ class GenericOAuthenticator(OAuthenticator):
         """
         # Authenticator.manage_groups is new in jupyterhub 2.2
         manage_groups = getattr(self, "manage_groups", False)
+        self.log.info(f"CALLED UPDATE_AUTH_MODEL, manage groups {manage_groups}, auth model {auth_model}")
         if manage_groups or self.admin_groups:
             user_info = auth_model["auth_state"][self.user_auth_state_key]
             user_groups = self.get_user_groups(user_info)
 
         if manage_groups:
             auth_model["groups"] = sorted(user_groups)
+            self.log.info(f"AUTH MODEL GROUPS {auth_model['groups']}")
 
         if auth_model["admin"]:
             # auth_model["admin"] being True means the user was in admin_users
